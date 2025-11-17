@@ -1,31 +1,38 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
-const consultaSchema = new mongoose.Schema({
-  paciente: { type: mongoose.Schema.Types.ObjectId, ref: 'Paciente' },
-  medico: { type: mongoose.Schema.Types.ObjectId, ref: 'Medico' },
-  dataHora: Date
+const ConsultaSchema = new mongoose.Schema({
+  paciente: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Paciente",
+    required: true,
+  },
+  medico: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Medico",
+    required: true,
+  },
+  horario: {
+    type: Date, // ✅ Agora salva corretamente como data
+    required: true,
+  },
+  especialidade: {
+    type: String,
+    required: true,
+  },
+  status: {
+    type: String,
+    enum: ["pendente", "aprovada", "rejeitada"],
+    default: "pendente",
+  },
+  dataCriacao: {
+    type: Date,
+    default: Date.now, // ✅ Cria automaticamente a data de criação
+  },
+  laudoUrl: {
+  type: String,
+  default: null
+}
 });
 
-module.exports = mongoose.model('Consulta', consultaSchema);
-
-// routes/consultas.js
-const express = require('express');
-const router = express.Router();
-const Consulta = require('/models/agendamento');
-
-router.post('/', async (req, res) => {
-  const { paciente, medicoId, horario } = req.body;
-
-  if (!paciente || !medicoId || !horario)
-    return res.status(400).json({ error: 'Campos obrigatórios faltando' });
-
-  try {
-    const consulta = new Consulta({ paciente, medicoId, horario });
-    await consulta.save();
-    res.json({ message: 'Consulta agendada com sucesso!' });
-  } catch (err) {
-    res.status(500).json({ error: 'Erro ao agendar consulta' });
-  }
-});
-
-module.exports = router;
+// ✅ Exportação padrão
+export default mongoose.model("Consulta", ConsultaSchema);
