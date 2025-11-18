@@ -13,12 +13,28 @@ const server = http.createServer(app);
 // =========================
 // CORS + JSON
 // =========================
+const allowedOrigins = [
+  "http://localhost:3000",              // frontend local
+  "https://agendai-frontend.vercel.app" // frontend em produção
+];
+
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: (origin, callback) => {
+      // permite também chamadas sem origin (Postman, curl, etc.)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+// responde pré-flight (OPTIONS) com os headers de CORS
+app.options("*", cors());
 
 app.use(express.json());
 
